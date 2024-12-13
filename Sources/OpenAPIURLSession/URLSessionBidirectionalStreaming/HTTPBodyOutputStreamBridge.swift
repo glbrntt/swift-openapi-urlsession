@@ -101,25 +101,6 @@ final class HTTPBodyOutputStreamBridge: NSObject, StreamDelegate {
         default: preconditionFailure("OutputStream.write(_:maxLength:) returned undocumented value")
         }
     }
-
-    func stream(_ stream: Stream, handle event: Stream.Event) {
-        dispatchPrecondition(condition: .onQueue(Self.streamQueue))
-        debug("Output stream delegate received event: \(event).")
-        switch event {
-        case .openCompleted:
-            guard case .initial = state else {
-                debug("Output stream delegate ignoring duplicate openCompleted event.")
-                return
-            }
-            startWriterTask()
-        case .hasSpaceAvailable: performAction(state.spaceBecameAvailable())
-        case .errorOccurred: performAction(state.errorOccurred(stream.streamError!))
-        case .endEncountered: performAction(state.endEncountered())
-        default:
-            debug("Output stream ignoring event: \(event).")
-            break
-        }
-    }
 }
 
 extension HTTPBodyOutputStreamBridge {
